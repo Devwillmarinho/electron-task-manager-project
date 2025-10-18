@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciador de Tarefas – INF</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <h1 class="title">
+          <svg class="icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+          </svg>
+          Gerenciador de Tarefas
+        </h1>
+        <button id="showShortcutsBtn" class="btn-shortcuts" title="Ver atalhos de teclado">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path>
+          </svg>
+        </button>
+        <div class="stats">
+          <span class="stat-item">
+            <span class="stat-number" id="totalTasks">0</span>
+            <span class="stat-label">Total</span>
+          </span>
+          <span class="stat-divider"></span>
+          <span class="stat-item">
+            <span class="stat-number" id="pendingTasks">0</span>
+            <span class="stat-label">Pendentes</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="input-section">
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          id="taskInput" 
+          class="task-input" 
+          placeholder="Digite uma nova tarefa..."
+          autocomplete="off"
+        >
+        <select id="prioritySelect" class="priority-select">
+          <option value="low">Baixa</option>
+          <option value="medium" selected>Média</option>
+          <option value="high">Alta</option>
+        </select>
+        <button id="addTaskBtn" class="btn-add">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Adicionar
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <button class="filter-btn active" data-filter="all">
+        Todas <span class="filter-count" id="countAll">0</span>
+      </button>
+      <button class="filter-btn" data-filter="pending">
+        Pendentes <span class="filter-count" id="countPending">0</span>
+      </button>
+      <button class="filter-btn" data-filter="completed">
+        Concluídas <span class="filter-count" id="countCompleted">0</span>
+      </button>
+    </div>
+
+    <div class="tasks-container">
+      <ul id="taskList" class="task-list"></ul>
+      <div id="emptyState" class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+        </svg>
+        <p class="empty-text">Nenhuma tarefa por aqui</p>
+        <p class="empty-subtext">Adicione uma nova tarefa para começar</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

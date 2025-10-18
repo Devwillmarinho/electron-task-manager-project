@@ -1,0 +1,13 @@
+{
+  "name": "electron-task-manager",
+  "version": "0.1.0",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "echo 'no build script' -- this is a placeholder"
+  },
+  "devDependencies": {
+    "electron": "^31.0.2"
+  }
+}
