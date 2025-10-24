@@ -1,21 +1,13 @@
 # Dependencies
 /node_modules
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.npm/
-
-# Build output
+# Build artifacts
 /dist
-/out
 /build
 
-# OS generated files
+# Log files
+*.log
+
+# OS-specific files
 .DS_Store
 Thumbs.db
-
-# Optional editor directories
-.vscode

@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "electron": "^31.0.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1"
   }
 }

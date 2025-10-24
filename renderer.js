@@ -1,78 +1,140 @@
-const { ipcRenderer } = require("electron")
-
 class TaskManager {
-  constructor() {
-    this.tasks = this.loadTasks()
+  constructor() {    
     this.currentFilter = "all"
+    this.projects = []
+    this.userId = null
+
     this.init()
   }
 
   init() {
     this.taskInput = document.getElementById("taskInput")
     this.prioritySelect = document.getElementById("prioritySelect")
-    this.addTaskBtn = document.getElementById("addTaskBtn")
-    this.taskList = document.getElementById("taskList")
-    this.showShortcutsBtn = document.getElementById("showShortcutsBtn")
+    this.addTaskBtn = document.getElementById("addProjectBtn")
+    this.logoutBtn = document.getElementById('logoutBtn');
+    this.taskList = document.getElementById("taskList");
     this.emptyState = document.getElementById("emptyState")
 
     this.addTaskBtn.addEventListener("click", () => this.addTask())
     this.taskInput.addEventListener("keypress", (e) => {
+
       if (e.key === "Enter") this.addTask()
     })
 
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        this.setFilter(e.target.dataset.filter)
+        this.setFilter(e.currentTarget.dataset.filter)
       })
     })
 
-    this.showShortcutsBtn.addEventListener("click", () => {
-      ipcRenderer.send("show-shortcuts")
+    this.logoutBtn.addEventListener('click', () => {
+      this.logout();
     })
 
-    ipcRenderer.on("focus-input", () => {
+    window.api.on("focus-input", () => {
       this.taskInput.focus()
     })
 
-    ipcRenderer.on("filter-tasks", (event, filter) => {
+    window.api.on("filter-tasks", (event, filter) => {
       this.setFilter(filter)
     })
 
-    this.render()
+    this.loadInitialData()
   }
 
-  addTask() {
+  showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    if (!notification) return;
+
+    notification.textContent = message;
+    notification.className = `notification ${type} show`;
+
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 4000);
+  }
+
+  async loadInitialData() {
+    try {
+      const user = await window.api.getUser()
+      if (user) {
+        this.userId = user.id
+        await this.loadProjects()
+      }
+      else {
+        console.warn('Nenhum usuário logado encontrado.');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar informações do usuário:', error);
+    }
+  }
+
+  async logout() {
+    try {
+      await window.api.signOut();
+      window.api.send('logout'); // CORREÇÃO: Usar a API exposta pelo preload
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  }
+
+  async addTask() {
     const text = this.taskInput.value.trim()
     if (!text) return
 
-    const task = {
-      id: Date.now(),
-      text: text,
+    // O ID é gerado pelo Supabase, não precisamos mais do Date.now()
+    const project = {
+      user_id: this.userId,
+      title: text, 
       completed: false,
       priority: this.prioritySelect.value,
-      createdAt: new Date().toISOString(),
     }
 
-    this.tasks.unshift(task)
-    this.saveTasks()
-    this.taskInput.value = ""
-    this.taskInput.focus()
-    this.render()
-  }
+    try {
+      const { error } = await window.api.createProject(project);
+      if (error) throw error;
 
-  toggleTask(id) {
-    const task = this.tasks.find((t) => t.id === id)
-    if (task) {
-      task.completed = !task.completed
-      this.saveTasks()
-      this.render()
+      await this.loadProjects(); // Recarrega os projetos após adicionar
+      this.taskInput.value = "";
+      this.taskInput.focus();
+      this.showNotification('Projeto adicionado com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro ao criar projeto:', error);
+      this.showNotification('Não foi possível adicionar o projeto.', 'error');
     }
   }
 
-  deleteTask(id) {
-    this.tasks = this.tasks.filter((t) => t.id !== id)
-    this.saveTasks()
-    this.render()
+  async toggleTask(id) {
+    const project = this.projects.find((p) => p.id === id)
+    if (project) {
+      const newStatus = !project.completed;
+      try {
+        const { error } = await window.api.updateProject(id, { completed: newStatus });
+        if (error) throw error;
+        // Atualiza o estado localmente para uma resposta visual imediata
+        project.completed = newStatus;
+        this.render();
+      } catch (error) {
+        console.error('Erro ao atualizar projeto:', error);
+        this.showNotification('Não foi possível atualizar o projeto.', 'error');
+      }
+    }
+  }
+
+  async deleteTask(id) {
+    // Usamos a notificação para confirmar a exclusão, o que é menos intrusivo.
+    // Para uma solução ideal, um modal de confirmação seria o próximo passo.
+    if (!window.confirm('Tem certeza que deseja excluir este projeto?')) return;
+
+    try {
+      const { error } = await window.api.deleteProject(id);
+      if (error) throw error;
+      await this.loadProjects(); // Recarrega a lista do banco
+      this.showNotification('Projeto excluído.', 'success');
+    } catch (error) {
+      console.error('Erro ao deletar projeto:', error);
+      this.showNotification('Não foi possível excluir o projeto.', 'error');
+    }
   }
 
   setFilter(filter) {
@@ -80,17 +142,31 @@ class TaskManager {
     document.querySelectorAll(".filter-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.filter === filter)
     })
+    // Apenas renderiza novamente com o novo filtro, não precisa recarregar do banco.
     this.render()
   }
 
   getFilteredTasks() {
     switch (this.currentFilter) {
+
       case "pending":
-        return this.tasks.filter((t) => !t.completed)
+        return this.projects.filter((t) => !t.completed)
       case "completed":
-        return this.tasks.filter((t) => t.completed)
+        return this.projects.filter((t) => t.completed)
       default:
-        return this.tasks
+        return this.projects
+    }
+  }
+
+  async loadProjects() {
+    try {
+      const { data, error } = await window.api.getProjects();
+      if (error) throw error;
+      // Ordena os projetos mais recentes primeiro
+      this.projects = (data || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      this.render(); // Renderiza a tela após carregar os projetos
+    } catch (error) {
+      console.error('Erro ao carregar projetos:', error);
     }
   }
 
@@ -115,10 +191,10 @@ class TaskManager {
             </svg>
           </div>
           <div class="task-content">
-            <div class="task-text">${this.escapeHtml(task.text)}</div>
+            <div class="task-text">${this.escapeHtml(task.title)}</div>
             <div class="task-meta">
               <span class="priority-badge ${task.priority}">${this.getPriorityLabel(task.priority)}</span>
-              <span>${this.formatDate(task.createdAt)}</span>
+              <span>${this.formatDate(task.created_at)}</span>
             </div>
           </div>
           <div class="task-actions">
@@ -147,9 +223,9 @@ class TaskManager {
   }
 
   updateStats() {
-    const total = this.tasks.length
-    const pending = this.tasks.filter((t) => !t.completed).length
-    const completed = this.tasks.filter((t) => t.completed).length
+    const total = this.projects.length
+    const pending = this.projects.filter((t) => !t.completed).length
+    const completed = total - pending;
 
     document.getElementById("totalTasks").textContent = total
     document.getElementById("pendingTasks").textContent = pending
@@ -187,15 +263,6 @@ class TaskManager {
     const div = document.createElement("div")
     div.textContent = text
     return div.innerHTML
-  }
-
-  saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(this.tasks))
-  }
-
-  loadTasks() {
-    const saved = localStorage.getItem("tasks")
-    return saved ? JSON.parse(saved) : []
   }
 }
 

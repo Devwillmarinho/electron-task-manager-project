@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerenciador de Tarefas – INF</title>
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+  <title>Gerenciador de Projetos – INF</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,11 +16,13 @@
             <path d="M9 11l3 3L22 4"></path>
             <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
           </svg>
-          Gerenciador de Tarefas
+          Gerenciador de Projetos
         </h1>
-        <button id="showShortcutsBtn" class="btn-shortcuts" title="Ver atalhos de teclado">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path>
+        <button id="logoutBtn" class="btn-shortcuts" title="Sair da conta">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
         </button>
         <div class="stats">
@@ -42,7 +45,7 @@
           type="text" 
           id="taskInput" 
           class="task-input" 
-          placeholder="Digite uma nova tarefa..."
+          placeholder="Digite um novo projeto..."
           autocomplete="off"
         >
         <select id="prioritySelect" class="priority-select">
@@ -50,13 +53,7 @@
           <option value="medium" selected>Média</option>
           <option value="high">Alta</option>
         </select>
-        <button id="addTaskBtn" class="btn-add">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Adicionar
-        </button>
+        <button id="addProjectBtn" class="btn-add">Adicionar</button>
       </div>
     </div>
 
@@ -70,7 +67,7 @@
       <button class="filter-btn" data-filter="completed">
         Concluídas <span class="filter-count" id="countCompleted">0</span>
       </button>
-    </div>
+    </div> 
 
     <div class="tasks-container">
       <ul id="taskList" class="task-list"></ul>
@@ -79,11 +76,13 @@
           <path d="M9 11l3 3L22 4"></path>
           <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
         </svg>
-        <p class="empty-text">Nenhuma tarefa por aqui</p>
-        <p class="empty-subtext">Adicione uma nova tarefa para começar</p>
+        <p class="empty-text">Nenhum projeto por aqui</p>
+        <p class="empty-subtext">Adicione um novo projeto para começar</p>
       </div>
     </div>
   </div>
+
+  <div id="notification" class="notification"></div>
 
   <script src="renderer.js"></script>
 </body>

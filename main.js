@@ -10,16 +10,16 @@ function createWindow() {
     minWidth: 600,
     minHeight: 400,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true, 
+      contextIsolation: true,
     },
     backgroundColor: "#0f0f0f",
     titleBarStyle: "default",
     icon: path.join(__dirname, "assets", "icon.png"),
   })
 
-  mainWindow.loadFile("index.html")
-
+  mainWindow.loadFile('login.html');
 
   Menu.setApplicationMenu(null)
 
@@ -39,7 +39,7 @@ app.whenReady().then(() => {
     }
   }
   globalShortcut.register("CommandOrControl+Shift+N", focusShortcut)
-  globalShortcut.register("CommandOrControl+Shift+M", focusShortcut) // Alternativa para ABNT2
+  globalShortcut.register("CommandOrControl+Shift+M", focusShortcut) 
 
   globalShortcut.register("CommandOrControl+Shift+1", () => {
     if (mainWindow) mainWindow.webContents.send("filter-tasks", "all")
@@ -86,11 +86,36 @@ app.whenReady().then(() => {
   })
 })
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit()
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
   }
 })
+
+ipcMain.on('login-success', () => {
+  if (mainWindow) {
+    mainWindow.loadFile('index.html');
+  }
+});
+
+
+ipcMain.on('logout', () => {
+  if (mainWindow) {
+    mainWindow.loadFile('login.html');
+  }
+});
+
+
+ipcMain.on('navigate-to-signup', () => {
+  if (mainWindow) {
+    mainWindow.loadFile('signup.html');
+  }
+});
+
+
+ipcMain.on('navigate-to-login', () => {
+  if (mainWindow) mainWindow.loadFile('login.html');
+});
 
 app.on("will-quit", () => {
   globalShortcut.unregisterAll()

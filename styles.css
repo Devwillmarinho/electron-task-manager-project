@@ -450,3 +450,120 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border);
 }
+
+/* --- Estilos da Tela de Login --- */
+
+.login-container {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.login-container .title {
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.login-container .subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  font-size: 1rem;
+}
+
+#authForm {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
+}
+
+.error-message {
+  color: var(--danger);
+  margin-top: 1rem;
+  height: 1.2rem; 
+  font-size: 0.875rem;
+}
+
+.navigation-link {
+  margin-top: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.navigation-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navigation-link a:hover {
+  text-decoration: underline;
+}
+/* --- Estilos de Notificação (Toast) --- */
+
+.notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translate(-50%, 150%);
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+  z-index: 1000;
+  font-size: 0.95rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.notification.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.notification.success {
+  background-color: var(--success);
+  border-color: #11a97a;
+  color: white;
+}
+
+.notification.error {
+  background-color: var(--danger);
+  border-color: #e03a3a;
+  color: white;
+}
